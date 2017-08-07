@@ -133,6 +133,8 @@
 #include <SITL/SITL.h>
 #endif
 
+#define MAX_ANGLE_PTAM 1500    //15°
+
 
 class Copter : public AP_HAL::HAL::Callbacks {
 public:
@@ -175,6 +177,19 @@ private:
     // Global parameters are all contained within the 'g' class.
     Parameters g;
     ParametersG2 g2;
+
+        //definitions for the PTAM control
+    int8_t readPTAM(unsigned char dato);
+    float PTAM_PD_control(float ptam_pos,float ptam_vel);
+    float sat_die(float d,float A,float a);
+    void plot_ptam();
+    float ptam_pos_vel[6],ptam_posVel_0[6],ptam_rpy[3],ptam_yaw_0=0;
+    unsigned char packPos[21]; //[P,pck type, pos(3x2), q(4x2),chk sum]
+    bool PTAM_OK=false;
+    float control_alt=0;
+    float ptam_target_roll, ptam_target_pitch,ptam_target_yaw_rate;
+    float ptam_pilot_throttle_scaled;
+
 
     // main loop scheduler
     AP_Scheduler scheduler;
@@ -311,7 +326,7 @@ private:
 
     // altitude below which we do no navigation in auto takeoff
     float auto_takeoff_no_nav_alt_cm;
-    
+
     RCMapper rcmap;
 
     // board specific config
@@ -456,7 +471,7 @@ private:
     uint32_t control_sensors_present;
     uint32_t control_sensors_enabled;
     uint32_t control_sensors_health;
-    
+
     // Altitude
     // The cm/s we are moving up or down based on filtered data - Positive = UP
     int16_t climb_rate;
@@ -559,8 +574,8 @@ private:
     AP_Rally_Copter rally;
 #endif
 
-    // RSSI 
-    AP_RSSI rssi;      
+    // RSSI
+    AP_RSSI rssi;
 
     // Crop Sprayer
 #if SPRAYER == ENABLED
@@ -643,7 +658,7 @@ private:
 
     // set when we are upgrading parameters from 3.4
     bool upgrading_frame_params;
-    
+
     static const AP_Scheduler::Task scheduler_tasks[];
     static const AP_Param::Info var_info[];
     static const struct LogStructure log_structure[];
@@ -901,6 +916,8 @@ private:
     bool landing_with_GPS();
     bool loiter_init(bool ignore_checks);
     void loiter_run();
+    bool ptam_init(bool ignore_checks);
+    void ptam_run();
 #if PRECISION_LANDING == ENABLED
     bool do_precision_loiter();
     void precision_loiter_xy();
@@ -1182,6 +1199,7 @@ public:
     int8_t test_rangefinder(uint8_t argc, const Menu::arg *argv);
 
     int8_t reboot_board(uint8_t argc, const Menu::arg *argv);
+
 };
 
 #define MENU_FUNC(func) FUNCTOR_BIND(&copter, &Copter::func, int8_t, uint8_t, const Menu::arg *)
@@ -1191,3 +1209,8 @@ extern Copter copter;
 
 using AP_HAL::millis;
 using AP_HAL::micros;
+
+
+
+
+

@@ -34,6 +34,10 @@ extern const AP_HAL::HAL& hal;
 #endif
 
 
+#define BAUD_TELEM2 AP_SERIALMANAGER_MAVLINK_BAUD
+
+
+
 const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     // @Param: 0_BAUD
     // @DisplayName: Serial0 baud rate
@@ -44,12 +48,12 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
 
     // @Param: 0_PROTOCOL
     // @DisplayName: Console protocol selection
-    // @Description: Control what protocol to use on the console. 
+    // @Description: Control what protocol to use on the console.
     // @Values: 1:MAVlink1, 2:MAVLink2
     // @User: Standard
     // @RebootRequired: True
     AP_GROUPINFO("0_PROTOCOL",  11, AP_SerialManager, state[0].protocol, SerialProtocol_MAVLink),
-    
+
     // @Param: 1_PROTOCOL
     // @DisplayName: Telem1 protocol selection
     // @Description: Control what protocol to use on the Telem1 port. Note that the Frsky options require external converter hardware. See the wiki for details.
@@ -78,7 +82,8 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     // @Description: The baud rate of the Telem2 port. The APM2 can support all baudrates up to 115, and also can support 500. The PX4 can support rates of up to 1500. If you setup a rate you cannot support on APM2 and then can't connect to your board you should load a firmware from a different vehicle type. That will reset all your parameters to defaults.
     // @Values: 1:1200,2:2400,4:4800,9:9600,19:19200,38:38400,57:57600,111:111100,115:115200,500:500000,921:921600,1500:1500000
     // @User: Standard
-    AP_GROUPINFO("2_BAUD", 4, AP_SerialManager, state[2].baud, AP_SERIALMANAGER_MAVLINK_BAUD/1000),
+
+    AP_GROUPINFO("2_BAUD", 4, AP_SerialManager, state[2].baud, BAUD_TELEM2/1000),
 
     // @Param: 3_PROTOCOL
     // @DisplayName: Serial 3 (GPS) protocol selection
@@ -108,7 +113,7 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     // @Description: The baud rate used for Serial4. The APM2 can support all baudrates up to 115, and also can support 500. The PX4 can support rates of up to 1500. If you setup a rate you cannot support on APM2 and then can't connect to your board you should load a firmware from a different vehicle type. That will reset all your parameters to defaults.
     // @Values: 1:1200,2:2400,4:4800,9:9600,19:19200,38:38400,57:57600,111:111100,115:115200,500:500000,921:921600,1500:1500000
     // @User: Standard
-    AP_GROUPINFO("4_BAUD", 8, AP_SerialManager, state[4].baud, AP_SERIALMANAGER_GPS_BAUD/1000),
+    AP_GROUPINFO("4_BAUD", 8, AP_SerialManager, state[4].baud, AP_SERIALMANAGER_PTAM_BAUD/1000),//
 
     // @Param: 5_PROTOCOL
     // @DisplayName: Serial5 protocol selection
@@ -126,7 +131,7 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     AP_GROUPINFO("5_BAUD", 10, AP_SerialManager, state[5].baud, SERIAL5_BAUD),
 
     // index 11 used by 0_PROTOCOL
-    
+
     AP_GROUPEND
 };
 
@@ -160,7 +165,10 @@ void AP_SerialManager::init()
     if (state[0].uart == nullptr) {
         init_console();
     }
-    
+
+    //Diego: changing the protocol for uartC, used for costume communication
+    state[1].protocol=SerialProtocol_Die;
+
     // initialise serial ports
     for (uint8_t i=1; i<SERIALMANAGER_NUM_PORTS; i++) {
         if (state[i].uart != nullptr) {
@@ -170,7 +178,7 @@ void AP_SerialManager::init()
                 case SerialProtocol_Console:
                 case SerialProtocol_MAVLink:
                 case SerialProtocol_MAVLink2:
-                    state[i].uart->begin(map_baudrate(state[i].baud), 
+                    state[i].uart->begin(map_baudrate(state[i].baud),
                                          AP_SERIALMANAGER_MAVLINK_BUFSIZE_RX,
                                          AP_SERIALMANAGER_MAVLINK_BUFSIZE_TX);
                     break;
@@ -187,7 +195,7 @@ void AP_SerialManager::init()
                     break;
                 case SerialProtocol_GPS:
                 case SerialProtocol_GPS2:
-                    state[i].uart->begin(map_baudrate(state[i].baud), 
+                    state[i].uart->begin(map_baudrate(state[i].baud),
                                          AP_SERIALMANAGER_GPS_BUFSIZE_RX,
                                          AP_SERIALMANAGER_GPS_BUFSIZE_TX);
                     break;
@@ -212,6 +220,12 @@ void AP_SerialManager::init()
                                          AP_SERIALMANAGER_ULANDING_BUFSIZE_RX,
                                          AP_SERIALMANAGER_ULANDING_BUFSIZE_TX);
                     break;
+                case SerialProtocol_Die:
+                    state[i].uart->begin(map_baudrate(state[i].baud),
+                                         AP_SERIALMANAGER_MAVLINK_BUFSIZE_RX,
+                                         AP_SERIALMANAGER_MAVLINK_BUFSIZE_TX);
+                    break;
+
             }
         }
     }

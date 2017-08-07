@@ -81,6 +81,17 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
+//PTAM PID position control gains
+#ifndef KP_PTAM_DEFAULT
+   #   define KP_PTAM_DEFAULT 500
+   #   define KD_PTAM_DEFAULT 1000
+   #   define KI_PTAM_DEFAULT 0
+   #   define KP_PTAM_ALT_DEFAULT 0.5
+   #   define KD_PTAM_ALT_DEFAULT 0.5
+   #   define KI_PTAM_ALT_DEFAULT 0
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
 // Rangefinder
 //
 
@@ -251,6 +262,20 @@
 // Parachute release
 #ifndef PARACHUTE
  # define PARACHUTE ENABLED
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// Die Mavlink disable
+#ifndef MAVLINK_ENABLED
+# define MAVLINK_ENABLED ENABLED
+//# define MAVLINK_ENABLED DISABLED
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// Die console disable
+#ifndef CONSOLE_ENABLED
+//# define CONSOLE_ENABLED ENABLED
+# define CONSOLE_ENABLED DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////

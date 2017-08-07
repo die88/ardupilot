@@ -135,7 +135,14 @@ public:
         k_param_cli_enabled,
         k_param_throttle_filt,
         k_param_throttle_behavior,
-        k_param_pilot_takeoff_alt, // 64
+        k_param_pilot_takeoff_alt,
+	k_param_kp_ptam,			//PTAM position control gains
+	k_param_kd_ptam,
+	//k_param_ki_ptam,	//47
+	k_param_kp_ptam_alt,			//PTAM altitude control gains
+	k_param_kd_ptam_alt,
+	//k_param_ki_ptam_alt,	//50
+// 64
 
         // 65: AP_Limits Library
         k_param_limits = 65,            // deprecated - remove
@@ -188,7 +195,7 @@ public:
 
         // 97: RSSI
         k_param_rssi = 97,
-                
+
         //
         // 100: Inertial Nav
         //
@@ -411,7 +418,7 @@ public:
 
     AP_Int16        poshold_brake_rate;         // PosHold flight mode's rotation rate during braking in deg/sec
     AP_Int16        poshold_brake_angle_max;    // PosHold flight mode's max lean angle during braking in centi-degrees
-    
+
     // Waypoints
     //
     AP_Int32        rtl_loiter_time;
@@ -461,7 +468,14 @@ public:
     AP_Int8         throw_motor_start;
     AP_Int8         terrain_follow;
 
-    AP_Int16                rc_speed; // speed of fast RC Channels in Hz
+    AP_Int16        rc_speed; // speed of fast RC Channels in Hz
+
+    AP_Float 	    kp_ptam;
+    AP_Float 	    kd_ptam;
+    //AP_Float 	    ki_ptam;
+    AP_Float 	    kp_ptam_alt;
+    AP_Float 	    kd_ptam_alt;
+//    AP_Float 	    ki_ptam_alt;
 
     // Acro parameters
     AP_Float                acro_rp_p;
@@ -549,7 +563,7 @@ public:
 
     // whether to enforce acceptance of packets only from sysid_my_gcs
     AP_Int8 sysid_enforce;
-    
+
 #if ADVANCED_FAILSAFE == ENABLED
     // advanced failsafe library
     AP_AdvancedFailsafe_Copter afs;
@@ -567,7 +581,7 @@ public:
 
     // RC input channels
     RC_Channels rc_channels;
-    
+
     // control over servo output ranges
     SRV_Channels servo_channels;
 };
