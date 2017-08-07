@@ -1,7 +1,5 @@
-//Diego Alberto Mercado Ravell
-
 #include "Copter.h"
-#define CMD_LEN 23
+#define CMD_LEN 21
 #define MAX_DIST 20
 
 int contador_1=0,i_2=0;
@@ -54,7 +52,7 @@ void Copter::userhook_FastLoop()
         if(i_2++==20){
             plot_ptam();
             //hal.uartC->printf("yaw real: %.2f, ptam: %.2f, ptam_0: %.2f\n",ahrs.yaw,ptam_rpy[2],ptam_yaw_0); //just to debug
-            //float ptam_yaw_rate_pilot =  get_pilot_desired_yaw_rate(channel_yaw->get_control_in())+500.0*180.0*(ptam_rpy[2]-ptam_yaw_0)/M_PI;//control yaw with ptam info
+            //float ptam_yaw_rate_pilot =  get_pilot_desired_yaw_rate(channel_yaw->get_control_in())-500.0*180.0*(ptam_rpy[2]-ptam_yaw_0)/M_PI;//control yaw with ptam info
             //hal.uartC->printf("pilot yaw rate: %.2f\tyaw_control: %.2f\n",ptam_yaw_rate_pilot,-500.0*180.0*(ptam_rpy[2]-ptam_yaw_0)/M_PI);
             i_2=0;
         }
@@ -191,10 +189,6 @@ void Copter::plot_ptam(){
             buffer_ptam[19]=pos_send_ptam&0xff;
             buffer_ptam[18]=pos_send_ptam>>8;
 
-            pos_temp_ptam=sat_die(ptam_rpy[2]-ptam_yaw_0,-M_PI,M_PI)*0x7fff/M_PI;
-            pos_send_ptam=(int16_t)pos_temp_ptam;
-            buffer_ptam[21]=pos_send_ptam&0xff;
-            buffer_ptam[20]=pos_send_ptam>>8;
 
 
             buffer_ptam[CMD_LEN-1]=0;
@@ -205,3 +199,4 @@ void Copter::plot_ptam(){
             hal.uartC->print(buffer_ptam[CMD_LEN-1]);
             return;
 }
+
