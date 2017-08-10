@@ -183,7 +183,6 @@ private:
     float PTAM_PD_control(float ptam_pos,float ptam_vel);
     float sat_die(float d,float A,float a);
     void plot_ptam();
-    float rc_7_norm=1.0,rc_8_norm=1.0, kp_yaw_rate=1000.0;
     float ptam_pos_vel[6],ptam_posVel_0[6],ptam_rpy[3],ptam_yaw_0=0;
     unsigned char packPos[21]; //[P,pck type, pos(3x2), q(4x2),chk sum]
     bool PTAM_OK=false;
@@ -919,8 +918,6 @@ private:
     void loiter_run();
     bool ptam_init(bool ignore_checks);
     void ptam_run();
-    bool ptam_tray_init(bool ignore_checks);
-    void ptam_tray_run();
 #if PRECISION_LANDING == ENABLED
     bool do_precision_loiter();
     void precision_loiter_xy();

@@ -45,14 +45,6 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
             success = althold_init(ignore_checks);
             break;
 
-        case PTAM:
-            success = ptam_init(ignore_checks);
-            break;
-
-        case PTAM_TRAY:
-            success = ptam_tray_init(ignore_checks);
-            break;
-
         case AUTO:
             success = auto_init(ignore_checks);
             break;
@@ -126,7 +118,7 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
     if (success) {
         // perform any cleanup required by previous flight mode
         exit_mode(control_mode, mode);
-
+        
         prev_control_mode = control_mode;
         prev_control_mode_reason = control_mode_reason;
 
@@ -142,11 +134,11 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
         // but it should be harmless to disable the fence temporarily in these situations as well
         fence.manual_recovery_start();
 #endif
-
+        
 #if FRSKY_TELEM_ENABLED == ENABLED
         frsky_telemetry.update_control_mode(control_mode);
 #endif
-
+        
     } else {
         // Log error that we failed to enter desired flight mode
         Log_Write_Error(ERROR_SUBSYSTEM_FLIGHT_MODE,mode);
@@ -189,15 +181,6 @@ void Copter::update_flight_mode()
         case ALT_HOLD:
             althold_run();
             break;
-
-        case PTAM:
-            ptam_run();
-            break;
-
-        case PTAM_TRAY:
-            ptam_tray_run();
-            break;
-
 
         case AUTO:
             auto_run();
@@ -456,12 +439,6 @@ void Copter::print_flight_mode(AP_HAL::BetterStream *port, uint8_t mode)
         break;
     case ALT_HOLD:
         port->printf("ALT_HOLD");
-        break;
-    case PTAM:
-        port->printf("PTAM");
-        break;
-    case PTAM_TRAY:
-        port->printf("PTAM_TRAY");
         break;
     case AUTO:
         port->printf("AUTO");
