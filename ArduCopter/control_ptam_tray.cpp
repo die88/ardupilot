@@ -17,7 +17,7 @@ based on loiter mode*/
  */
 
 // ptam_init - initialise ptam controller
-bool Copter::ptam_init(bool ignore_checks)
+bool Copter::ptam_tray_init(bool ignore_checks)
 {
 
     if (PTAM_OK || ignore_checks) {
@@ -69,9 +69,9 @@ hal.uartA->printf("A");
 
 // _run - runs the  controller
 // should be called at 100hz or more
-void Copter::ptam_run()
+void Copter::ptam_tray_run()
 {
-    PtamModeState ptam_state;
+   // PtamModeState ptam_state;
 
         //Die map linearly throttle
     ptam_pilot_throttle_scaled = constrain_float(((float)channel_throttle->get_control_in()-100.0)/900.0,0,1);
@@ -125,16 +125,5 @@ void Copter::ptam_run()
         }
 }
 
-float Copter::PTAM_PD_control(float ptam_pos_err,float ptam_vel_err){
-    return sat_die(-g.kp_ptam*(ptam_pos_err)-g.kd_ptam*(ptam_vel_err),MAX_ANGLE_PTAM,-MAX_ANGLE_PTAM);
-}
 
-float Copter::sat_die(float d,float A,float a){
-    if(A<a){
-        float a_t=A;
-        A=a;
-        a=a_t;
-    }
-    return d>A?A:(d<a?a:d);
-}
 
