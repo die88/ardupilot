@@ -26,6 +26,7 @@ bool Copter::ptam_tray_init(bool ignore_checks)
         //wp_nav->init_loiter_target();
 
         ptam_tray_mode=Ptam_tray_Home;
+        wp_index=0;
 
             for(int i1=0;i1<3;i1++) {
                     ptam_posVel_0[i1]=ptam_pos_vel[i1];
@@ -33,7 +34,24 @@ bool Copter::ptam_tray_init(bool ignore_checks)
                     ptam_pos_target[i1]=ptam_pos_vel[i1];
                     ptam_pos_target[i1+3]=0;      //target speed is zero
                     ptam_yaw_0=ptam_rpy[2];
+                    for(int i2=0;i2<WP_NUM;i2++){
+                        ptam_wp[i1][i2]=ptam_posVel_0[i1];
+                        ptam_wp[i1+3][i2]=0;      //target speed is zero
+                    }
                 }
+
+        //define the waypoints
+            //sweep a wall
+        ptam_wp[0][0]+=1.0; //go 1m in x
+        ptam_wp[0][1]-=1.0; //go -2m in x and 0.5 up
+        ptam_wp[2][1]+=0.5;
+        ptam_wp[0][2]+=1.0; //go 2m in x
+        ptam_wp[2][2]+=0.5;
+        ptam_wp[0][3]-=1.0; //go -2m in x 0.5 up
+        ptam_wp[2][3]+=1.0;
+        ptam_wp[0][4]+=1.0; //go 2m in x
+        ptam_wp[2][4]+=1.0;
+
 
         // initialize vertical speed and acceleration
 
