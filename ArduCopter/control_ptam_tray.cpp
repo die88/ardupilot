@@ -9,7 +9,7 @@
 -desired to incorporate optic flow when available!
 based on loiter mode*/
 #include "Copter.h"
-#define ALT_HOLD_ENABLE false
+//#define ALT_HOLD_ENABLE false
 
 
 /*
@@ -25,34 +25,28 @@ bool Copter::ptam_tray_init(bool ignore_checks)
         // set target to current position
         //wp_nav->init_loiter_target();
 
+        ptam_tray_mode=Ptam_tray_Home;
+
             for(int i1=0;i1<3;i1++) {
                     ptam_posVel_0[i1]=ptam_pos_vel[i1];
                     ptam_posVel_0[i1+3]=0;      //target speed is zero
+                    ptam_pos_target[i1]=ptam_pos_vel[i1];
+                    ptam_pos_target[i1+3]=0;      //target speed is zero
                     ptam_yaw_0=ptam_rpy[2];
-            }
+                }
 
         // initialize vertical speed and acceleration
-        if(ALT_HOLD_ENABLE){
-               pos_control->set_speed_z(-g.pilot_velocity_z_max, g.pilot_velocity_z_max);
-            pos_control->set_accel_z(g.pilot_accel_z);
-        // initialise position and desired velocity
-            if (!pos_control->is_active_z()) {
-            pos_control->set_alt_target_to_current_alt();
-            pos_control->set_desired_velocity_z(inertial_nav.get_velocity_z());
-            }
-        }
-        else  {
+
                 if (motors->armed() && ap.land_complete && !mode_has_manual_throttle(control_mode) &&
                    (get_pilot_desired_throttle(channel_throttle->get_control_in()) > get_non_takeoff_throttle())) {
-        return false;
+                            return false;
             }
             // set target altitude to zero for reporting
             pos_control->set_alt_target(0);
-        }
 
 
 hal.uartA->printf("A");
-    hal.uartC->printf("PTAM mode on! kp:%f kd:%f\n",(float)g.kp_ptam,(float)g.kd_ptam);
+    hal.uartC->printf("PTAM_tray mode on! kp:%f kd:%f\n",(float)g.kp_ptam,(float)g.kd_ptam);
     if((float)RC_Channels::rc_channel(CH_6)->get_control_in()>500){
             rc_7_norm=10.0*(1.0-((float)RC_Channels::rc_channel(CH_7)->get_control_in())/997.0);
             rc_8_norm=10.0*((float)RC_Channels::rc_channel(CH_8)->get_control_in()/997.0);
@@ -71,17 +65,16 @@ hal.uartA->printf("A");
 // should be called at 100hz or more
 void Copter::ptam_tray_run()
 {
-   // PtamModeState ptam_state;
 
         //Die map linearly throttle
     ptam_pilot_throttle_scaled = constrain_float(((float)channel_throttle->get_control_in()-100.0)/900.0,0,1);
 
-    float control_y=-PTAM_PD_control(g.kp_ptam*(ptam_pos_vel[0]-ptam_posVel_0[0]),g.kd_ptam*(ptam_pos_vel[3]));
-    float control_x=-PTAM_PD_control(g.kp_ptam*(ptam_pos_vel[1]-ptam_posVel_0[1]),g.kd_ptam*(ptam_pos_vel[4]));
+    float control_y=-PTAM_PD_control(g.kp_ptam*(ptam_pos_vel[0]-ptam_pos_target[0]),g.kd_ptam*(ptam_pos_vel[3]));   //missing target speed, zero by now
+    float control_x=-PTAM_PD_control(g.kp_ptam*(ptam_pos_vel[1]-ptam_pos_target[1]),g.kd_ptam*(ptam_pos_vel[4]));   //missing target speed, zero by now
 
     ptam_target_roll=-sin(ptam_rpy[2])*control_x-cos(ptam_rpy[2])*control_y+channel_roll->get_control_in();
     ptam_target_pitch=cos(ptam_rpy[2])*control_x+sin(ptam_rpy[2])*control_y+channel_pitch->get_control_in();
-    control_alt=sat_die(-g.kp_ptam_alt*(ptam_pos_vel[2]-ptam_posVel_0[2])-g.kd_ptam_alt*ptam_pos_vel[5],0.15,-0.15);
+    control_alt=sat_die(-g.kp_ptam_alt*(ptam_pos_vel[2]-ptam_pos_target[2])-g.kd_ptam_alt*ptam_pos_vel[5],0.15,-0.15); //missing target speed, zero by now
     control_alt=sat_die( ptam_pilot_throttle_scaled +control_alt,1.0,0.0);
 
 
@@ -124,6 +117,5 @@ void Copter::ptam_tray_run()
             attitude_control->set_throttle_out(ptam_pilot_throttle_scaled, true, g.throttle_filt);
         }
 }
-
 
 

@@ -69,12 +69,12 @@ void Copter::userhook_50Hz()
 }
 #endif
 
-#ifdef USERHOOK_MEDIUMLOOP
+//#ifdef USERHOOK_MEDIUMLOOP
 void Copter::userhook_MediumLoop()
 {
     // put your 10Hz code here
 }
-#endif
+//#endif
 
 #ifdef USERHOOK_SLOWLOOP
 void Copter::userhook_SlowLoop()
@@ -204,4 +204,12 @@ void Copter::plot_ptam(){
             }
             hal.uartC->print(buffer_ptam[CMD_LEN-1]);
             return;
+}
+
+bool Copter::die_in_target(float range_tray){
+        return die_norm2(ptam_pos_vel[0]-ptam_pos_target[0],ptam_pos_vel[1]-ptam_pos_target[1],ptam_pos_vel[2]-ptam_pos_target[2])<range_tray?true:false;
+}
+
+float Copter::die_norm2(float x,float y, float z){
+        return sqrt(x*x+y*y+z*z);
 }

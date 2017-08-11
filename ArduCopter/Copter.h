@@ -182,11 +182,14 @@ private:
     int8_t readPTAM(unsigned char dato);
     float PTAM_PD_control(float ptam_pos,float ptam_vel);
     float sat_die(float d,float A,float a);
+    float die_norm2(float x, float y, float z);
+    bool die_in_target(float range_tray);
     void plot_ptam();
     float rc_7_norm=1.0,rc_8_norm=1.0, kp_yaw_rate=1000.0;
-    float ptam_pos_vel[6],ptam_posVel_0[6],ptam_rpy[3],ptam_yaw_0=0;
+    float ptam_pos_vel[6],ptam_posVel_0[6],ptam_pos_target[6],ptam_rpy[3],ptam_yaw_0=0;
     unsigned char packPos[21]; //[P,pck type, pos(3x2), q(4x2),chk sum]
     bool PTAM_OK=false;
+    PtamWPModeState ptam_tray_mode=Ptam_tray_Home;
     float control_alt=0;
     float ptam_target_roll, ptam_target_pitch,ptam_target_yaw_rate;
     float ptam_pilot_throttle_scaled;

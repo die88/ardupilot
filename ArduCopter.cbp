@@ -107,6 +107,7 @@
 		<Unit filename="ArduCopter/control_poshold.cpp" />
 		<Unit filename="ArduCopter/control_poshold.cpp.d" />
 		<Unit filename="ArduCopter/control_ptam.cpp" />
+		<Unit filename="ArduCopter/control_ptam_tray.cpp" />
 		<Unit filename="ArduCopter/control_rtl.cpp" />
 		<Unit filename="ArduCopter/control_rtl.cpp.d" />
 		<Unit filename="ArduCopter/control_sport.cpp" />
