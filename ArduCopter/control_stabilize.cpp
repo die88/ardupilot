@@ -4,6 +4,10 @@
  * Init and run calls for stabilize flight mode
  */
 
+ int contador=0;
+
+//const AP_HAL::HAL& hal_uartE = AP_HAL::get_HAL();
+
 // stabilize_init - initialise stabilize controller
 bool Copter::stabilize_init(bool ignore_checks)
 {
@@ -15,6 +19,9 @@ bool Copter::stabilize_init(bool ignore_checks)
     // set target altitude to zero for reporting
     pos_control->set_alt_target(0);
 
+        // initialize uartE
+        //hal.uartE->begin(115200);
+
     return true;
 }
 
@@ -25,6 +32,15 @@ void Copter::stabilize_run()
     float target_roll, target_pitch;
     float target_yaw_rate;
     float pilot_throttle_scaled;
+
+    pilot_throttle_scaled = constrain_float(((float)channel_throttle->get_control_in()-100.0)/900.0,0,1);//Die linearly map throttle
+     control_alt=pilot_throttle_scaled;
+
+       /* if(contador++==100){
+        contador=0;
+
+        //hal.uartE->printf("hola amiguitos! uartE at %.3f seconds\n",(double)(AP_HAL::millis()*0.001f));
+    }*/
 
     // if not armed set throttle to zero and exit immediately
     if (!motors->armed() || ap.throttle_zero || !motors->get_interlock()) {
@@ -49,7 +65,8 @@ void Copter::stabilize_run()
     target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
 
     // get pilot's desired throttle
-    pilot_throttle_scaled = get_pilot_desired_throttle(channel_throttle->get_control_in());
+    //pilot_throttle_scaled = get_pilot_desired_throttle(channel_throttle->get_control_in());
+    pilot_throttle_scaled = constrain_float(((float)channel_throttle->get_control_in()-100.0)/900.0,0,1);//Die linearly map throttle
 
     // call attitude controller
     attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
