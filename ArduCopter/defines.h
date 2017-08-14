@@ -246,6 +246,13 @@ enum PtamModeState {
     Ptam_Landed
 };
 
+// Ptam_tray states
+enum PtamWPModeState {
+    Ptam_tray_Home,
+    Ptam_tray_Go,
+    Ptam_tray_Hold,
+};
+
 // Sport states
 enum SportModeState {
     Sport_MotorStopped,

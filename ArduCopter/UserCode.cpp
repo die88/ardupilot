@@ -3,6 +3,7 @@
 #include "Copter.h"
 #define CMD_LEN 23
 #define MAX_DIST 20
+#define DIST_TARGET 0.1
 
 int contador_1=0,i_2=0;
 
@@ -69,12 +70,47 @@ void Copter::userhook_50Hz()
 }
 #endif
 
-#ifdef USERHOOK_MEDIUMLOOP
+//#ifdef USERHOOK_MEDIUMLOOP
 void Copter::userhook_MediumLoop()
 {
-    // put your 10Hz code here
+    switch(ptam_tray_mode){
+        case Ptam_tray_Home:
+            ptam_pos_target[0]=ptam_posVel_0[0];
+            ptam_pos_target[1]=ptam_posVel_0[1];
+            ptam_pos_target[2]=ptam_posVel_0[2];
+            if(wp_index<WP_NUM){
+                ptam_tray_mode=Ptam_tray_Hold;
+                hold_count=0;
+            }
+        break;
+
+        case Ptam_tray_Go:
+                ptam_pos_target[0]=ptam_wp[0][wp_index];
+                ptam_pos_target[1]=ptam_wp[1][wp_index];
+                ptam_pos_target[2]=ptam_wp[2][wp_index];
+                wp_index++;
+                ptam_tray_mode=Ptam_tray_Hold;
+                hold_count=0;
+        break;
+
+        case Ptam_tray_Hold:
+            if(die_in_target(DIST_TARGET)){
+                hold_count++;
+            }
+            else hold_count=0;
+            if(hold_count>=20.0){
+                ptam_tray_mode=(wp_index<WP_NUM)?Ptam_tray_Go:Ptam_tray_Home;
+            }    //if close to the target for two consecutive seconds, go to the next point
+        break;
+
+        default:                                    //just for security
+            ptam_pos_target[0]=ptam_posVel_0[0];
+            ptam_pos_target[1]=ptam_posVel_0[1];
+            ptam_pos_target[2]=ptam_posVel_0[2];
+        break;
+    }
 }
-#endif
+//#endif
 
 #ifdef USERHOOK_SLOWLOOP
 void Copter::userhook_SlowLoop()
@@ -204,4 +240,12 @@ void Copter::plot_ptam(){
             }
             hal.uartC->print(buffer_ptam[CMD_LEN-1]);
             return;
+}
+
+bool Copter::die_in_target(float range_tray){
+        return die_norm2(ptam_pos_vel[0]-ptam_pos_target[0],ptam_pos_vel[1]-ptam_pos_target[1],ptam_pos_vel[2]-ptam_pos_target[2])<range_tray?true:false;
+}
+
+float Copter::die_norm2(float x,float y, float z){
+        return sqrt(x*x+y*y+z*z);
 }

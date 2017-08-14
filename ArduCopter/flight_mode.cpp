@@ -45,14 +45,6 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
             success = althold_init(ignore_checks);
             break;
 
-        case PTAM:
-            success = ptam_init(ignore_checks);
-            break;
-
-        case PTAM_TRAY:
-            success = ptam_tray_init(ignore_checks);
-            break;
-
         case AUTO:
             success = auto_init(ignore_checks);
             break;
@@ -115,6 +107,14 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
 
         case GUIDED_NOGPS:
             success = guided_nogps_init(ignore_checks);
+            break;
+
+        case PTAM:
+            success = ptam_init(ignore_checks);
+            break;
+
+        case PTAM_TRAY:
+            success = ptam_tray_init(ignore_checks);
             break;
 
         default:
@@ -190,15 +190,6 @@ void Copter::update_flight_mode()
             althold_run();
             break;
 
-        case PTAM:
-            ptam_run();
-            break;
-
-        case PTAM_TRAY:
-            ptam_tray_run();
-            break;
-
-
         case AUTO:
             auto_run();
             break;
@@ -261,6 +252,14 @@ void Copter::update_flight_mode()
 
         case GUIDED_NOGPS:
             guided_nogps_run();
+            break;
+
+        case PTAM:
+            ptam_run();
+            break;
+
+        case PTAM_TRAY:
+            ptam_tray_run();
             break;
 
         default:
@@ -352,7 +351,7 @@ bool Copter::mode_has_manual_throttle(control_mode_t mode)
 //  arming_from_gcs should be set to true if the arming request comes from the ground station
 bool Copter::mode_allows_arming(control_mode_t mode, bool arming_from_gcs)
 {
-    if (mode_has_manual_throttle(mode) || mode == LOITER || mode == ALT_HOLD || mode == POSHOLD || mode == DRIFT || mode == SPORT || mode == THROW || (arming_from_gcs && (mode == GUIDED || mode == GUIDED_NOGPS))) {
+    if (mode_has_manual_throttle(mode) || mode == LOITER || mode == ALT_HOLD || mode == POSHOLD || mode == DRIFT || mode == SPORT || mode == THROW || (arming_from_gcs && (mode == GUIDED || mode == GUIDED_NOGPS || mode == PTAM || mode == PTAM_TRAY ))) {
         return true;
     }
     return false;
@@ -436,6 +435,12 @@ void Copter::notify_flight_mode(control_mode_t mode)
         case GUIDED_NOGPS:
             notify.set_flight_mode_str("GNGP");
             break;
+        case PTAM:
+            notify.set_flight_mode_str("PTAM");
+            break;
+        case PTAM_TRAY:
+            notify.set_flight_mode_str("TRAY");
+            break;
         default:
             notify.set_flight_mode_str("----");
             break;
@@ -456,12 +461,6 @@ void Copter::print_flight_mode(AP_HAL::BetterStream *port, uint8_t mode)
         break;
     case ALT_HOLD:
         port->printf("ALT_HOLD");
-        break;
-    case PTAM:
-        port->printf("PTAM");
-        break;
-    case PTAM_TRAY:
-        port->printf("PTAM_TRAY");
         break;
     case AUTO:
         port->printf("AUTO");
@@ -507,6 +506,12 @@ void Copter::print_flight_mode(AP_HAL::BetterStream *port, uint8_t mode)
         break;
     case GUIDED_NOGPS:
         port->printf("GUIDED_NOGPS");
+        break;
+    case PTAM:
+        port->printf("PTAM");
+        break;
+    case PTAM_TRAY:
+        port->printf("PTAM_TRAY");
         break;
     default:
         port->printf("Mode(%u)", (unsigned)mode);
