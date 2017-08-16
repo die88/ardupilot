@@ -3,7 +3,7 @@
 #include "Copter.h"
 #define CMD_LEN 23
 #define MAX_DIST 20
-#define DIST_TARGET 0.1
+#define DIST_TARGET 0.2
 
 int contador_1=0,i_2=0;
 
@@ -73,6 +73,13 @@ void Copter::userhook_50Hz()
 //#ifdef USERHOOK_MEDIUMLOOP
 void Copter::userhook_MediumLoop()
 {
+
+        if(contador_1++==500){  //heartbeat
+            contador_1=0;
+            hal.uartA->print("m");
+            //hal.uartE->print("e");
+    }
+
     switch(ptam_tray_mode){
         case Ptam_tray_Home:
             ptam_pos_target[0]=ptam_posVel_0[0];

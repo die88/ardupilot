@@ -1,4 +1,4 @@
-/*
+/* by Diego Alberto Mercado Ravell die_ravell88@hotmail.com
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -109,17 +109,18 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #if FRAME_CONFIG == HELI_FRAME
     SCHED_TASK(check_dynamic_flight,  50,     75),
 #endif
-    SCHED_TASK(fourhundred_hz_logging,400,    50),
     SCHED_TASK(update_notify,         50,     90),
     SCHED_TASK(one_hz_loop,            1,    100),
     SCHED_TASK(ekf_check,             10,     75),
-    SCHED_TASK(gpsglitch_check,       10,     50),
     SCHED_TASK(landinggear_update,    10,     75),
     SCHED_TASK(lost_vehicle_check,    10,     50),
+     //tratando de deshabilitar mavlink en uartA
+   #if MAVLINK_ENABLED == ENABLED
     SCHED_TASK(gcs_check_input,      400,    180),
     SCHED_TASK(gcs_send_heartbeat,     1,    110),
     SCHED_TASK(gcs_send_deferred,     50,    550),
     SCHED_TASK(gcs_data_stream_send,  50,    550),
+   #endif
     SCHED_TASK(update_mount,          50,     75),
     SCHED_TASK(update_trigger,        50,     75),
     SCHED_TASK(ten_hz_logging_loop,   10,    350),
