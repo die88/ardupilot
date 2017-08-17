@@ -5,7 +5,7 @@
 #define MAX_DIST 20
 #define DIST_TARGET 0.2
 
-int contador_1=0,i_2=0;
+int contador_1=0,i_2=0,contador_2=0;
 
 #ifdef USERHOOK_INIT
 void Copter::userhook_init()
@@ -18,19 +18,17 @@ void Copter::userhook_init()
 //#ifdef USERHOOK_FASTLOOP
 void Copter::userhook_FastLoop()
 {
-
-
     //Diego recovering raw IMU measurements
     //AP_InertialSensor my_ins= ahrs.get_ins();
     //Vector3f accs= my_ins.get_accel();
     //Vector3f gyros= my_ins.get_gyro();
 
     // put your 100Hz code here
-    if(contador_1++==500){
-            contador_1=0;
-            hal.uartA->print("a");
-            //hal.uartE->print("e");
-    }
+//    if(contador_1++==500){
+//            contador_1=0;
+//            hal.uartA->print("a");
+//            //hal.uartE->print("e");
+//    }
 
     int buff_len = hal.uartE->available();
     for(int i_1 = 0; i_1<buff_len; i_1++){
@@ -73,12 +71,14 @@ void Copter::userhook_50Hz()
 //#ifdef USERHOOK_MEDIUMLOOP
 void Copter::userhook_MediumLoop()
 {
+    char wp_status='h';
 
-        if(contador_1++==500){  //heartbeat
-            contador_1=0;
-            hal.uartA->print("m");
-            //hal.uartE->print("e");
-    }
+
+//        if(contador_1++==10){  //heartbeat
+//            contador_1=0;
+//            hal.uartA->print("m");
+//            //hal.uartE->print("e");
+//    }
 
     switch(ptam_tray_mode){
         case Ptam_tray_Home:
@@ -115,6 +115,35 @@ void Copter::userhook_MediumLoop()
             ptam_pos_target[1]=ptam_posVel_0[1];
             ptam_pos_target[2]=ptam_posVel_0[2];
         break;
+    }
+
+    if((contador_2++)==10){
+            contador_2=0;
+            //send a
+          const int16_t wp_pck_lenght = 10;
+          int16_t pos_send_wp;
+          char buffer_wp[wp_pck_lenght];
+          float pos_temp_wp=0;
+          buffer_wp[0]='P';	//header
+          buffer_wp[ wp_pck_lenght -1]=0;
+          buffer_wp[1]='w';	//pack type 'w'= waypoints status + target position
+
+        for(int i1=0;i1<3;i1++){
+            pos_temp_wp=sat_die(ptam_pos_target[i1]-ptam_posVel_0[i1],-4.0,4.0)*0x7fff/4.0;
+            pos_send_wp=(int16_t)pos_temp_wp;
+            buffer_wp[2*i1+3]=pos_send_wp&0xff;
+            buffer_wp[2*i1+2]=pos_send_wp>>8;
+        }//for
+
+            buffer_wp[8]=wp_status;
+
+            buffer_wp[wp_pck_lenght-1]=0;
+        for(int i1=0;i1<wp_pck_lenght-1;i1++) {
+            buffer_wp[wp_pck_lenght-1]^=buffer_wp[i1];
+            hal.uartC->print(buffer_wp[i1]);
+        }//for
+        hal.uartC->print(buffer_wp[wp_pck_lenght-1]);
+
     }
 }
 //#endif
@@ -238,7 +267,6 @@ void Copter::plot_ptam(){
             pos_send_ptam=(int16_t)pos_temp_ptam;
             buffer_ptam[21]=pos_send_ptam&0xff;
             buffer_ptam[20]=pos_send_ptam>>8;
-
 
             buffer_ptam[CMD_LEN-1]=0;
         for(int i1=0;i1<CMD_LEN-1;i1++) {
