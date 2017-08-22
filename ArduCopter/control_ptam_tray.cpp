@@ -52,7 +52,6 @@ bool Copter::ptam_tray_init(bool ignore_checks)
         ptam_wp[0][4]+=1.0; //go 2m in x
         ptam_wp[2][4]+=1.0;
 
-
         // initialize vertical speed and acceleration
 
                 if (motors->armed() && ap.land_complete && !mode_has_manual_throttle(control_mode) &&
@@ -75,6 +74,7 @@ hal.uartA->printf("A");
         return true;
     }
     else{
+            gcs().send_text(MAV_SEVERITY_WARNING,"PTAM off!");
         return false;
     }
 }

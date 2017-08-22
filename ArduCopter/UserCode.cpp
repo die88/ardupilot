@@ -79,9 +79,10 @@ void Copter::userhook_MediumLoop()
 //            hal.uartA->print("m");
 //            //hal.uartE->print("e");
 //    }
-
+if(copter.control_mode==PTAM_TRAY){
     switch(ptam_tray_mode){
         case Ptam_tray_Home:
+            gcs().send_text(MAV_SEVERITY_WARNING,"PTAM wp: home");
             ptam_pos_target[0]=ptam_posVel_0[0];
             ptam_pos_target[1]=ptam_posVel_0[1];
             ptam_pos_target[2]=ptam_posVel_0[2];
@@ -92,6 +93,7 @@ void Copter::userhook_MediumLoop()
         break;
 
         case Ptam_tray_Go:
+                gcs().send_text(MAV_SEVERITY_WARNING,"PTAM wp: go");
                 ptam_pos_target[0]=ptam_wp[0][wp_index];
                 ptam_pos_target[1]=ptam_wp[1][wp_index];
                 ptam_pos_target[2]=ptam_wp[2][wp_index];
@@ -101,6 +103,7 @@ void Copter::userhook_MediumLoop()
         break;
 
         case Ptam_tray_Hold:
+            gcs().send_text(MAV_SEVERITY_WARNING,"PTAM wp: hold");
             if(die_in_target(DIST_TARGET)){
                 hold_count++;
             }
@@ -144,6 +147,7 @@ void Copter::userhook_MediumLoop()
         }//for
         hal.uartC->print(buffer_wp[wp_pck_lenght-1]);
 
+        }
     }
 }
 //#endif

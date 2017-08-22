@@ -38,6 +38,7 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
                 success = heli_stabilize_init(ignore_checks);
             #else
                 success = stabilize_init(ignore_checks);
+                 gcs().send_text(MAV_SEVERITY_WARNING,"die: Flight mode: stabilize");
             #endif
             break;
 
@@ -111,10 +112,12 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
 
         case PTAM:
             success = ptam_init(ignore_checks);
+            gcs().send_text(MAV_SEVERITY_WARNING,"Flight mode: ptam");
             break;
 
         case PTAM_TRAY:
             success = ptam_tray_init(ignore_checks);
+            gcs().send_text(MAV_SEVERITY_WARNING,"Flight mode: ptam_tray");
             break;
 
         default:
@@ -351,7 +354,7 @@ bool Copter::mode_has_manual_throttle(control_mode_t mode)
 //  arming_from_gcs should be set to true if the arming request comes from the ground station
 bool Copter::mode_allows_arming(control_mode_t mode, bool arming_from_gcs)
 {
-    if (mode_has_manual_throttle(mode) || mode == LOITER || mode == ALT_HOLD || mode == POSHOLD || mode == DRIFT || mode == SPORT || mode == THROW || (arming_from_gcs && (mode == GUIDED || mode == GUIDED_NOGPS || mode == PTAM || mode == PTAM_TRAY ))) {
+    if (mode_has_manual_throttle(mode) || mode == LOITER || mode == ALT_HOLD || mode == POSHOLD || mode == DRIFT || mode == SPORT || mode == THROW  || mode == PTAM || mode == PTAM_TRAY || (arming_from_gcs && (mode == GUIDED || mode == GUIDED_NOGPS))) {
         return true;
     }
     return false;

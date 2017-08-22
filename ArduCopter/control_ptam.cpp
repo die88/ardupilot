@@ -63,6 +63,7 @@ hal.uartA->printf("A");
         return true;
     }
     else{
+            gcs().send_text(MAV_SEVERITY_WARNING,"PTAM off!");
         return false;
     }
 }
