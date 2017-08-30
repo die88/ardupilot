@@ -3,9 +3,10 @@
 #include "Copter.h"
 #define CMD_LEN 23
 #define MAX_DIST 20
-#define DIST_TARGET 0.2
+#define DIST_TARGET 0.4
 
 int contador_1=0,i_2=0,contador_2=0;
+float dist_wp=0;
 
 #ifdef USERHOOK_INIT
 void Copter::userhook_init()
@@ -93,21 +94,23 @@ if(copter.control_mode==PTAM_TRAY){
         break;
 
         case Ptam_tray_Go:
-                gcs().send_text(MAV_SEVERITY_WARNING,"PTAM wp: go");
+                gcs().send_text(MAV_SEVERITY_WARNING,"PTAM wp: go ->%d  %.2f", wp_index,dist_wp);
                 ptam_pos_target[0]=ptam_wp[0][wp_index];
                 ptam_pos_target[1]=ptam_wp[1][wp_index];
                 ptam_pos_target[2]=ptam_wp[2][wp_index];
-                wp_index++;
-                ptam_tray_mode=Ptam_tray_Hold;
-                hold_count=0;
-        break;
+                 if(die_in_target(DIST_TARGET)){
+                         wp_index++;
+                         ptam_tray_mode=Ptam_tray_Hold;
+                         hold_count=0;
+                    }
+                break;
 
         case Ptam_tray_Hold:
-            gcs().send_text(MAV_SEVERITY_WARNING,"PTAM wp: hold");
             if(die_in_target(DIST_TARGET)){
                 hold_count++;
             }
             else hold_count=0;
+            gcs().send_text(MAV_SEVERITY_WARNING,"PTAM wp: hold %d %.2f",hold_count, dist_wp);
             if(hold_count>=20.0){
                 ptam_tray_mode=(wp_index<WP_NUM)?Ptam_tray_Go:Ptam_tray_Home;
             }    //if close to the target for two consecutive seconds, go to the next point
@@ -282,7 +285,8 @@ void Copter::plot_ptam(){
 }
 
 bool Copter::die_in_target(float range_tray){
-        return die_norm2(ptam_pos_vel[0]-ptam_pos_target[0],ptam_pos_vel[1]-ptam_pos_target[1],ptam_pos_vel[2]-ptam_pos_target[2])<range_tray?true:false;
+        dist_wp=die_norm2(ptam_pos_vel[0]-ptam_pos_target[0],ptam_pos_vel[1]-ptam_pos_target[1],ptam_pos_vel[2]-ptam_pos_target[2]);
+        return dist_wp<range_tray?true:false;
 }
 
 float Copter::die_norm2(float x,float y, float z){
