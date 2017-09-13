@@ -82,7 +82,7 @@ void Copter::ptam_run()
 
     ptam_target_roll=-sin(ptam_rpy[2])*control_x-cos(ptam_rpy[2])*control_y+channel_roll->get_control_in();
     ptam_target_pitch=cos(ptam_rpy[2])*control_x+sin(ptam_rpy[2])*control_y+channel_pitch->get_control_in();
-    control_alt=sat_die(-g.kp_ptam_alt*(ptam_pos_vel[2]-ptam_posVel_0[2])-g.kd_ptam_alt*ptam_pos_vel[5],0.15,-0.15);
+    control_alt=sat_die(-g.kp_ptam_alt*(ptam_pos_vel[2]-ptam_posVel_0[2])-g.kd_ptam_alt*ptam_pos_vel[5],MAX_PTAM_ALT,-MAX_PTAM_ALT);
     control_alt=sat_die( ptam_pilot_throttle_scaled +control_alt,1.0,0.0);
 
 
@@ -108,7 +108,8 @@ void Copter::ptam_run()
 
          // get pilot's desired yaw rate
     //ptam_target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
-    ptam_target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in())+constrain_int32(150.0*180.0*(ptam_rpy[2]-ptam_yaw_0)/M_PI,-3000,3000);///control yaw with ptam info
+    //ptam_target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in())+constrain_int32(150.0*180.0*(ptam_rpy[2]-ptam_yaw_0)/M_PI,-3000,3000);///control yaw with ptam info
+ptam_target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in())+constrain_int32(k_yaw_rate*180.0*(ptam_rpy[2]-ptam_yaw_0)/M_PI,-1500,1500);///control yaw with ptam info
 
     // get pilot's desired throttle, transform pilot's manual throttle input to make hover throttle mid stick, range 0-1
     //ptam_pilot_throttle_scaled = get_pilot_desired_throttle(channel_throttle->get_control_in());

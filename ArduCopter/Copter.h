@@ -133,7 +133,8 @@
 #include <SITL/SITL.h>
 #endif
 
-#define MAX_ANGLE_PTAM 1500    //15°
+#define MAX_ANGLE_PTAM 800    //8°
+#define MAX_PTAM_ALT 0.1
 
 #define WP_NUM 5
 
@@ -188,6 +189,7 @@ private:
     bool die_in_target(float range_tray);
     void plot_ptam();
     float rc_7_norm=1.0,rc_8_norm=1.0, kp_yaw_rate=1000.0;
+    int k_yaw_rate=150;
      int hold_count=0,wp_index=0;
     float ptam_pos_vel[6],ptam_posVel_0[6],ptam_pos_target[6],ptam_wp[6][WP_NUM],ptam_rpy[3],ptam_yaw_0=0;
     unsigned char packPos[21]; //[P,pck type, pos(3x2), q(4x2),chk sum]

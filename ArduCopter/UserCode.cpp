@@ -3,7 +3,7 @@
 #include "Copter.h"
 #define CMD_LEN 23
 #define MAX_DIST 20
-#define DIST_TARGET 0.4
+#define DIST_TARGET 0.5
 
 int contador_1=0,i_2=0,contador_2=0;
 float dist_wp=0;
@@ -80,7 +80,11 @@ void Copter::userhook_MediumLoop()
 //            hal.uartA->print("m");
 //            //hal.uartE->print("e");
 //    }
-if(copter.control_mode==PTAM_TRAY){
+if(copter.control_mode==PTAM){
+    float foo= die_norm2(ptam_pos_vel[0]-ptam_posVel_0[0],ptam_pos_vel[1]-ptam_posVel_0[1],ptam_pos_vel[2]-ptam_posVel_0[2]);
+    gcs().send_text(MAV_SEVERITY_WARNING,"PTAM:->%s  %.2f",foo>DIST_TARGET?"out":"in",foo);
+}
+else if(copter.control_mode==PTAM_TRAY){
     switch(ptam_tray_mode){
         case Ptam_tray_Home:
             gcs().send_text(MAV_SEVERITY_WARNING,"PTAM wp: home");
